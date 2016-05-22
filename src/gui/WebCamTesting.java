@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
 /**
@@ -24,7 +25,6 @@ public class WebCamTesting extends javax.swing.JFrame {
     /**
      * Creates new form WebCamTesting
      */
-    
     //definitions
     private DaemonThread myThread = null;
     int count = 0;
@@ -32,48 +32,40 @@ public class WebCamTesting extends javax.swing.JFrame {
 
     Mat frame = new Mat();
     MatOfByte mem = new MatOfByte();
-    
+
     //class of thread
-     class DaemonThread implements Runnable
-    {
-    protected volatile boolean runnable = false;
+    class DaemonThread implements Runnable {
 
-    @Override
-    public  void run()
-    {
-        synchronized(this)
-        {
-            while(runnable)
-            {
-                if(webSource.grab())
-                {
-		    	try
-                        {
+        protected volatile boolean runnable = false;
+
+        @Override
+        public void run() {
+            synchronized (this) {
+                while (runnable) {
+                    if (webSource.grab()) {
+                        try {
                             webSource.retrieve(frame);
-			    //Highgui.imencode(".bmp", frame, mem);
-			    Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
+                            Imgcodecs.imencode(".bmp", frame, mem);
+                            Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
 
-			    BufferedImage buff = (BufferedImage) im;
-			    Graphics g=jPanelVideo.getGraphics();
+                            BufferedImage buff = (BufferedImage) im;
+                            Graphics g = jPanelVideo.getGraphics();
 
-			    if (g.drawImage(buff, 0, 0, getWidth(), getHeight() -150 , 0, 0, buff.getWidth(), buff.getHeight(), null))
-			    
-			    if(runnable == false)
-                            {
-			    	System.out.println("Going to wait()");
-			    	this.wait();
-			    }
-			 }
-			 catch(Exception ex)
-                         {
-			    System.out.println("Error");
-                         }
+                            if (g.drawImage(buff, 0, 0, getWidth(), getHeight() - 150, 0, 0, buff.getWidth(), buff.getHeight(), null)) {
+                                if (runnable == false) {
+                                    System.out.println("Going to wait()");
+                                    this.wait();
+                                }
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Error");
+                        }
+                    }
                 }
             }
         }
-     }
-   }
-    
+    }
+
     public WebCamTesting() {
         initComponents();
     }
@@ -150,26 +142,26 @@ public class WebCamTesting extends javax.swing.JFrame {
 
     private void jButtonStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartActionPerformed
         // TODO add your handling code here:
-        
-         webSource =new VideoCapture(0);    //video capture from default cam
-         myThread = new DaemonThread();     //create object from thread class
-            Thread t = new Thread(myThread);
-            t.setDaemon(true);
-            myThread.runnable = true;
-            t.start();                      //start thread
-            
-            jButtonStart.setEnabled(false);  //deactivate start button
-            jButtonPause.setEnabled(true);  // activate pause button
+
+        webSource = new VideoCapture(0);    //video capture from default cam
+        myThread = new DaemonThread();     //create object from thread class
+        Thread t = new Thread(myThread);
+        t.setDaemon(true);
+        myThread.runnable = true;
+        t.start();                      //start thread
+
+        jButtonStart.setEnabled(false);  //deactivate start button
+        jButtonPause.setEnabled(true);  // activate pause button
     }//GEN-LAST:event_jButtonStartActionPerformed
 
     private void jButtonPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPauseActionPerformed
         // TODO add your handling code here:
-        
-            myThread.runnable = false;      //stop thread
-            jButtonPause.setEnabled(false); //activate start  
-            jButtonStart.setEnabled(true);  //deactivate pause
-            
-            webSource.release();
+
+        myThread.runnable = false;      //stop thread
+        jButtonPause.setEnabled(false); //activate start  
+        jButtonStart.setEnabled(true);  //deactivate pause
+
+        webSource.release();
     }//GEN-LAST:event_jButtonPauseActionPerformed
 
     /**
@@ -177,7 +169,7 @@ public class WebCamTesting extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-       
+
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME); // load native library of opencv
 
         /* Create and display the form */
